@@ -2,7 +2,7 @@ module Rack
   module Signature
     MAJOR = 0
     MINOR = 0
-    PATCH = 1
+    PATCH = 5
 
     def self.version
       [MAJOR, MINOR, PATCH].join('.')
