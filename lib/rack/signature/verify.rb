@@ -45,21 +45,10 @@ module Rack
         expected_signature == received_signature
       end
 
-      # builds the request message as a hash
-      def build_request_message(env, opts={})
-        {
-          'request_method'  => env["REQUEST_METHOD"],
-          'host'            => env["REMOTE_HOST"],
-          'path'            => env["REQUEST_PATH"]
-        }.merge(opts)
-      end
-
       # builds the request message and tells HmacSignature to sign the message
       def compute_signature(env)
-        request = ::Rack::Request.new(env)
-        options = build_request_message(env, { 'query_params' => request.params })
-        STDOUT.puts "OPTIONS: #{options.inspect}"
-        HmacSignature.new(@key, options).sign
+        message = BuildMessage.new(env).build!
+        HmacSignature.new(@key, message).sign
       end
 
     end

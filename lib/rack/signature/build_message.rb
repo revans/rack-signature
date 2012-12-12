@@ -1,50 +1,41 @@
+require 'rack/request'
 
 module Rack
   module Signature
     class BuildMessage
-      attr_reader :options
+      attr_reader :request
 
       # initialize with a hash of options
       #
       # ==== Attributes
       #
-      # * +options+ - A hash of options about the request.
+      # * +env+ - The rack app env
       #
-      # ==== Options
-      #
-      # The options hash is required and the below keys of the hash are also
-      # required.
-      #
-      # +request_method+  - The type of request: GET/POST/PUT/DELETE/PATCH
-      # +host+            - The Api server domain: apiserver.com
-      # +path+            - The URI Api path: /api/person/bob
-      # +query_params+    - The query params or post body within the request
-      #
-      def initialize(options)
-        @options = options
+      def initialize(env)
+        @request = ::Rack::Request.new(env)
       end
 
       def build!
-        create_request_string
+        create_request_message
       end
 
       private
 
-      def sort_params(params)
-        return [] if params.empty?
-        params.sort.map { |param| param.join('=') }
+      def sort_query_params
+        request.params.sort.map { |param| param.join('=') }
       end
 
-      def canonicalized_params(params)
-        sort_params(params).join('&')
+      def canonicalized_query_params
+        sort_query_params.join('&')
       end
 
-      def create_request_string
-        options.fetch('request_method', '') +
-          options.fetch('host', '') +
-          options.fetch('path', '') +
-          canonicalized_params(options.fetch('query_params', []))
+      def create_request_message
+        request.request_method.upcase +
+          request.path_info.downcase +
+          request.host.downcase +
+          canonicalized_query_params
       end
+
     end
   end
 end
