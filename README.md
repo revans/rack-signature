@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/revans/rack-signature.png)](https://travis-ci.org/revans/rack-signature)
+[![Build Status](https://secure.travis-ci.org/revans/rack-signature.png)](https://travis-ci.org/revans/rack-signature)
 
 [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/revans/rack-signature)
 
