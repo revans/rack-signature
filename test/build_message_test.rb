@@ -1,7 +1,7 @@
-require_relative '../lib/request_signer/build_message'
+require_relative '../lib/rack/signature/build_message'
 require 'test_helper'
 
-module RequestSigner
+module Rack::Signature
   class BuildMessageTest < MiniTest::Unit::TestCase
     include TestingHelpers
 

@@ -1,6 +1,6 @@
 require 'minitest/autorun'
 
-module RequestSigner
+module Rack::Signature
   module TestingHelpers
     def key
       "e262c41ad8d6736747d49ebb30e157bbc01e4e42dceb0fa75b184a170240a87d"

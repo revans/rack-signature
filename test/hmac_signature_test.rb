@@ -1,7 +1,7 @@
-require_relative '../lib/request_signer/hmac_signature'
+require_relative '../lib/rack/signature/hmac_signature'
 require 'test_helper'
 
-module RequestSigner
+module Rack::Signature
   class HmacSignatureTest < MiniTest::Unit::TestCase
     include TestingHelpers
 

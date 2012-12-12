@@ -1,9 +1,9 @@
-require_relative '../lib/request_signer/version'
+require_relative '../lib/rack/signature/version'
 require 'minitest/autorun'
 
-class RequestSignerTest < MiniTest::Unit::TestCase
+class VersionTest < MiniTest::Unit::TestCase
   def test_version
     expected_version = '0.0.1'
-    assert_equal expected_version, RequestSigner.version
+    assert_equal expected_version, Rack::Signature.version
   end
 end
