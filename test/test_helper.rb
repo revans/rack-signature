@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require 'rack/test'
 
 module Rack::Signature
   module TestingHelpers
