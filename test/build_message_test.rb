@@ -3,14 +3,26 @@ require 'test_helper'
 
 module Rack::Signature
   class BuildMessageTest < MiniTest::Unit::TestCase
-    include TestingHelpers
 
     def test_build_with_a_valid_request
-      assert_equal valid_string_message, BuildMessage.new(valid_options).build!
+      env = Rack::MockRequest.env_for(
+        "http://example.com/api/login?password=123456&email=me@home.com")
+
+      assert_equal "GET/api/loginexample.comemail=me@home.com&password=123456",
+        BuildMessage.new(env).build!
     end
 
-    def test_build_with_missing_request_options
-      assert_equal missing_string_message, BuildMessage.new(missing_options).build!
+    def test_build_order
+      env = Rack::MockRequest.env_for(
+        "http://example.com/api/login",
+        "Content-Type"    => "application/json",
+        "REQUEST_METHOD"  => "POST",
+        input: "password=123456&email=me@home.com&name=me&age=1"
+      )
+
+      assert_equal "POST/api/loginexample.comage=1&email=me@home.com&name=me&password=123456",
+        BuildMessage.new(env).build!
     end
+
   end
 end
