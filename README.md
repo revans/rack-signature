@@ -1,6 +1,8 @@
+[![Build Status](https://travis-ci.org/revans/rack-signature.png)](https://travis-ci.org/revans/rack-signature)
+
 # Rack::Signature
 
-TODO: Write a gem description
+Rack Middleware used to verify signed requests.
 
 ## Installation
 
@@ -18,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+  use Rack::Signature, 'your-shared-key'
 
 ## Contributing
 
