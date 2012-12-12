@@ -20,7 +20,9 @@ Or install it yourself as:
 
 ## Usage
 
+```ruby
   use Rack::Signature, 'your-shared-key'
+```
 
 ## Contributing
 
