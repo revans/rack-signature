@@ -3,26 +3,41 @@ require 'test_helper'
 
 module Rack::Signature
   class HmacSignatureTest < MiniTest::Unit::TestCase
-    include TestingHelpers
 
     def test_valid_signature
-      assert_equal valid_signature, HmacSignature.new(key, valid_options).sign
+      assert_equal expected_signature,
+        HmacSignature.new(key, request_message).sign
     end
 
     def test_tampered_query_params
-      refute_equal valid_signature, HmacSignature.new(key, tampered_options).sign
+      tampered_message = "POST/api/loginexample.comage=1&email=me@home.com&name=me&password=3456"
+
+      refute_equal expected_signature,
+        HmacSignature.new(key, tampered_message).sign
     end
 
     def test_different_shared_key
-      refute_equal valid_signature, HmacSignature.new(invalid_key, valid_options).sign
+      refute_equal expected_signature,
+        HmacSignature.new("123", request_message).sign
     end
 
     def test_missing_options
-      refute_equal valid_signature, HmacSignature.new(key, missing_options).sign
+      missing_request_params = "POST/api/loginexample.comemail=me@home.com&password=123456"
+      refute_equal expected_signature,
+        HmacSignature.new(key, missing_request_params).sign
     end
 
-    def test_computed_invalid_signature
-      refute_equal invalid_signature, HmacSignature.new(key, valid_options).sign
+    # Helper methods
+    def request_message
+      "POST/api/loginexample.comage=1&email=me@home.com&name=me&password=123456"
+    end
+
+    def key
+      ::Digest::SHA2.hexdigest("shared-key")
+    end
+
+    def expected_signature
+      "Z0qY8Hy4a/gJkGZI0gklzM6vZztsAVVDjA18vb1BvHg="
     end
 
   end
