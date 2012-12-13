@@ -9,16 +9,17 @@ require_relative 'hmac_signature'
 module Rack
   module Signature
     class Verify
+      attr_reader :options
 
       # Initializes the Rack Middleware
       #
       # ==== Attributes
       #
       # * +app+     - A Rack app
-      # * +key+     - The shared key used as a salt.
+      # * +options+ - A hash of options
       #
-      def initialize(app, key)
-        @app, @key = app, key
+      def initialize(app, options)
+        @app, @options = app, options
       end
 
       def call(env)
@@ -48,7 +49,15 @@ module Rack
       # builds the request message and tells HmacSignature to sign the message
       def compute_signature(env)
         message = BuildMessage.new(env).build!
-        HmacSignature.new(@key, message).sign
+        HmacSignature.new(shared_key(env), message).sign
+      end
+
+      # FIXME: This is here for now for a quick implementation within another
+      # app. This will eventually need to be a rack app itself
+      def shared_key(env)
+        token = env["HTTP_#{options[:header_token]}"]
+        return '' if token.nil? || token == ''
+        options[:klass].send(options[:method].to_s, token)
       end
 
     end

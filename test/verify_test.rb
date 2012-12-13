@@ -5,12 +5,13 @@ describe "Verifying a signed request" do
   include Rack::Test::Methods
 
   def setup
+    @options    = get_app_options
     @shared_key = key
     @signature  = expected_signature
   end
 
   let(:app)             { lambda { |env| [200, {}, ['Hello World']] } }
-  let(:rack_signature)  { Rack::Signature.new(app, @shared_key) }
+  let(:rack_signature)  { Rack::Signature.new(app, @options) }
   let(:mock_request)    { Rack::MockRequest.new(rack_signature) }
 
   describe "when a request is made without a signature" do
@@ -36,6 +37,7 @@ describe "Verifying a signed request" do
         "Content-Type"    => "application/json",
         "REQUEST_METHOD"  => "POST",
         "HTTP_X_AUTH_SIG" => @signature,
+        "HTTP_API_TOKEN"  => '123',
         input: "password=123456&email=me@home.com&name=me&age=1")
     end
 
@@ -54,6 +56,7 @@ describe "Verifying a signed request" do
         "Content-Type"    => "application/json",
         "REQUEST_METHOD"  => "POST",
         "HTTP_X_AUTH_SIG" => @signature,
+        "HTTP_API_TOKEN"  => '123',
         input: "password=1234567&email=me@home.com&name=me&age=1")
     end
 
@@ -78,6 +81,16 @@ describe "Verifying a signed request" do
 
   def expected_signature
     "Z0qY8Hy4a/gJkGZI0gklzM6vZztsAVVDjA18vb1BvHg="
+  end
+
+  class DemoClass
+    def self.get_shared_token(token = '')
+      ::Digest::SHA2.hexdigest("shared-key") if token == '123'
+    end
+  end
+
+  def get_app_options
+    { klass: DemoClass, method: :get_shared_token, header_token: 'API_TOKEN' }
   end
 
 end
