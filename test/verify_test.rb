@@ -7,7 +7,7 @@ describe "Verifying a signed request" do
   TOKEN = ::SecureRandom.hex(8)
   def setup
     @klass_options = {klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER-API-KEY'}
-    @uri, @sig, @headers, @params, @env = setup_request("http://example.com/api/login",
+    @uri, @headers, @params, @env, @sig, @msg= setup_request("http://example.com/api/login",
       {"Content-Type"   => "application/json",
       "REQUEST_METHOD"  => "POST",
       "LOCKER-API-KEY"  => '123',

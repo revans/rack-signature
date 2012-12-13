@@ -6,7 +6,8 @@ module Rack
     module TestHelpers
       include Rack::Test::Methods
 
-      def generate_shared_token; ::SecureRandom.hex(8); end
+      # def generate_shared_token; ::SecureRandom.hex(8); end
+      def generate_shared_token; "a8a5ac6e39f1f5cd"; end
 
       def stringify_request_message(env)
         ::Rack::Signature::BuildMessage.new(env).build!
@@ -23,16 +24,12 @@ module Rack
 
       def setup_request(uri, opts, key)
         env  = ::Rack::MockRequest.env_for(uri, opts)
-        sig  = sign(env, key)
+        msg  = stringify_request_message(env)
+        sig  = hmac_message(key, msg)
         req  = Rack::Request.new(env)
         query_params = req.params
 
-        [uri, sig, opts, query_params, env]
-      end
-
-      def sign(env, key)
-        message = stringify_request_message(env)
-        hmac_message(key, message)
+        [uri, opts, query_params, env, sig, msg]
       end
 
     end
