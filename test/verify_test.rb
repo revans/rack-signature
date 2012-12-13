@@ -7,12 +7,13 @@ describe "Verifying a signed request" do
   TOKEN = ::SecureRandom.hex(8)
   def setup
     @klass_options = {klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER-API-KEY'}
-    @uri, @headers, @params, @env, @sig, @msg= setup_request("http://example.com/api/login",
+    @req = setup_request("http://example.com/api/login",
       {"Content-Type"   => "application/json",
       "REQUEST_METHOD"  => "POST",
       "LOCKER-API-KEY"  => '123',
       input: "password=123456&email=me@home.com&name=me&age=1"
       }, TOKEN)
+    @uri, @headers, @params, @env, @sig, @msg = @req
   end
 
   let(:app)             { lambda { |env| [200, {}, ['Hello World']] } }
@@ -25,6 +26,7 @@ describe "Verifying a signed request" do
     end
   end
 
+  let(:req) { @req }
   let(:uri) { @uri }
   let(:signature) { @sig }
   let(:headers) { @headers }

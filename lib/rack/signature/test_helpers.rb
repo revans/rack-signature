@@ -6,8 +6,7 @@ module Rack
     module TestHelpers
       include Rack::Test::Methods
 
-      # def generate_shared_token; ::SecureRandom.hex(8); end
-      def generate_shared_token; "a8a5ac6e39f1f5cd"; end
+      def generate_shared_token; ::SecureRandom.hex(8); end
 
       def stringify_request_message(env)
         ::Rack::Signature::BuildMessage.new(env).build!
