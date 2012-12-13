@@ -40,7 +40,7 @@ module Rack
       # compares the received Signature against what the Signature should be
       # (computed signature)
       def signature_is_valid?(env)
-        received_signature = env["HTTP_X_AUTH_SIG"]
+        received_signature = env["X-Auth-Sig"]
         expected_signature = compute_signature(env)
 
         expected_signature == received_signature
@@ -55,7 +55,7 @@ module Rack
       # FIXME: This is here for now for a quick implementation within another
       # app. This will eventually need to be a rack app itself
       def shared_key(env)
-        token = env["HTTP_#{options[:header_token]}"]
+        token = env[options[:header_token]]
         return '' if token.nil? || token == ''
         options[:klass].send(options[:method].to_s, token)
       end

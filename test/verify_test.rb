@@ -1,8 +1,10 @@
 require_relative '../lib/rack/signature'
+require_relative '../lib/rack/signature/test_helpers'
 require 'test_helper'
 
 describe "Verifying a signed request" do
   include Rack::Test::Methods
+  include Rack::Signature::TestHelpers
 
   def setup
     @options    = get_app_options
@@ -15,7 +17,10 @@ describe "Verifying a signed request" do
   let(:mock_request)    { Rack::MockRequest.new(rack_signature) }
 
   describe "when a request is made without a signature" do
-    let(:response) { mock_request.get '/api/login?password=123456&email=me@home.com' }
+    before {
+      @response = mock_request.get '/api/login?password=123456&email=me@home.com'
+    }
+    let(:response) { @response }
 
     it 'returns a 403 status' do
       assert_equal 403, response.status
@@ -36,8 +41,8 @@ describe "Verifying a signed request" do
       mock_request.post("http://example.com/api/login",
         "Content-Type"    => "application/json",
         "REQUEST_METHOD"  => "POST",
-        "HTTP_X_AUTH_SIG" => @signature,
-        "HTTP_API_TOKEN"  => '123',
+        "X-Auth-Sig"      => @signature,
+        "LOCKER-API-KEY"  => '123',
         input: "password=123456&email=me@home.com&name=me&age=1")
     end
 
@@ -51,14 +56,16 @@ describe "Verifying a signed request" do
   end
 
   describe "when a requests is sent with a tampered signature" do
-    let(:response) do
-      mock_request.post("http://example.com/api/login",
-        "Content-Type"    => "application/json",
-        "REQUEST_METHOD"  => "POST",
-        "HTTP_X_AUTH_SIG" => @signature,
-        "HTTP_API_TOKEN"  => '123',
-        input: "password=1234567&email=me@home.com&name=me&age=1")
+    let(:uri)           { "http://example/api/login" }
+    let(:query_params)  { "password=1234567&email=me@home.com&name=me&age=1" }
+    let(:headers) do
+      {"Content-Type"   => "application/json",
+      "REQUEST_METHOD"  => "POST",
+      "X-Auth-Sig"      => @signature,
+      "LOCKER-API-KEY"  => '123'}
     end
+    let(:
+    let(:response) { mock_request.post(uri, headers, input: query_params) }
 
     it 'returns a 403 status' do
       assert_equal 403, response.status
@@ -73,6 +80,9 @@ describe "Verifying a signed request" do
       assert_equal expected_header, response.header
     end
   end
+
+
+
 
   # Helper Methods
   def key
@@ -90,7 +100,7 @@ describe "Verifying a signed request" do
   end
 
   def get_app_options
-    { klass: DemoClass, method: :get_shared_token, header_token: 'API_TOKEN' }
+    { klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER-API-KEY' }
   end
 
 end
