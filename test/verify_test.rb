@@ -1,20 +1,35 @@
 require_relative '../lib/rack/signature'
-require_relative '../lib/rack/signature/test_helpers'
 require 'test_helper'
 
 describe "Verifying a signed request" do
-  include Rack::Test::Methods
   include Rack::Signature::TestHelpers
 
+  TOKEN = ::SecureRandom.hex(8)
   def setup
-    @options    = get_app_options
-    @shared_key = key
-    @signature  = expected_signature
+    @klass_options = {klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER-API-KEY'}
+    @uri, @sig, @headers, @params, @env = setup_request("http://example.com/api/login",
+      {"Content-Type"   => "application/json",
+      "REQUEST_METHOD"  => "POST",
+      "LOCKER-API-KEY"  => '123',
+      input: "password=123456&email=me@home.com&name=me&age=1"
+      }, TOKEN)
   end
 
   let(:app)             { lambda { |env| [200, {}, ['Hello World']] } }
-  let(:rack_signature)  { Rack::Signature.new(app, @options) }
+  let(:rack_signature)  { Rack::Signature.new(app, @klass_options) }
   let(:mock_request)    { Rack::MockRequest.new(rack_signature) }
+
+  class DemoClass
+    def self.get_shared_token(token = '')
+      TOKEN if token
+    end
+  end
+
+  let(:uri) { @uri }
+  let(:signature) { @sig }
+  let(:headers) { @headers }
+  let(:query_params) { @params }
+  let(:env) { @env }
 
   describe "when a request is made without a signature" do
     before {
@@ -38,11 +53,11 @@ describe "Verifying a signed request" do
 
   describe "when a requests is sent with a valid signature" do
     let(:response) do
-      mock_request.post("http://example.com/api/login",
+      mock_request.post(uri,
         "Content-Type"    => "application/json",
         "REQUEST_METHOD"  => "POST",
-        "X-Auth-Sig"      => @signature,
         "LOCKER-API-KEY"  => '123',
+        "X-Auth-Sig"      => signature,
         input: "password=123456&email=me@home.com&name=me&age=1")
     end
 
@@ -55,17 +70,16 @@ describe "Verifying a signed request" do
     end
   end
 
+
   describe "when a requests is sent with a tampered signature" do
-    let(:uri)           { "http://example/api/login" }
-    let(:query_params)  { "password=1234567&email=me@home.com&name=me&age=1" }
-    let(:headers) do
-      {"Content-Type"   => "application/json",
-      "REQUEST_METHOD"  => "POST",
-      "X-Auth-Sig"      => @signature,
-      "LOCKER-API-KEY"  => '123'}
+    let(:response) do
+      mock_request.post(uri,
+        {"Content-Type"   => "application/json",
+        "REQUEST_METHOD"  => "POST",
+        "LOCKER-API-KEY"  => '123',
+        "X-Auth-Sig"      => signature,
+        input: "password=1234567&email=me@home.com&name=me&age=1"})
     end
-    let(:
-    let(:response) { mock_request.post(uri, headers, input: query_params) }
 
     it 'returns a 403 status' do
       assert_equal 403, response.status
@@ -79,28 +93,6 @@ describe "Verifying a signed request" do
       expected_header = {"Content-Type"=>"text/html", "Content-Length"=>"17"}
       assert_equal expected_header, response.header
     end
-  end
-
-
-
-
-  # Helper Methods
-  def key
-    ::Digest::SHA2.hexdigest("shared-key")
-  end
-
-  def expected_signature
-    "Z0qY8Hy4a/gJkGZI0gklzM6vZztsAVVDjA18vb1BvHg="
-  end
-
-  class DemoClass
-    def self.get_shared_token(token = '')
-      ::Digest::SHA2.hexdigest("shared-key") if token == '123'
-    end
-  end
-
-  def get_app_options
-    { klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER-API-KEY' }
   end
 
 end
