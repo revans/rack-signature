@@ -34,16 +34,20 @@ module Rack
 
       # if the signature is invalid we send back this Rack app
       def invalid_signature
-        [403, {'Content-Type' => 'text/html'}, 'Invalid Signature']
+        [401, {'CONTENT_TYPE' => 'application/json'}, 'Access Denied']
       end
 
       # compares the received Signature against what the Signature should be
       # (computed signature)
       def signature_is_valid?(env)
-        received_signature = env["X-Auth-Sig"]
-        expected_signature = compute_signature(env)
+        return true if html_request?(env)
 
-        expected_signature == received_signature
+        # grab and compute the X-AUTH-SIG
+        signature_sent    = env["X_AUTH_SIG"]
+        actual_signature  = compute_signature(env)
+
+        # are they the same?
+        signature_sent.to_s == actual_signature.to_s
       end
 
       # builds the request message and tells HmacSignature to sign the message
@@ -55,9 +59,16 @@ module Rack
       # FIXME: This is here for now for a quick implementation within another
       # app. This will eventually need to be a rack app itself
       def shared_key(env)
-        token = env[options[:header_token]]
+        token = (env[options[:header_token]] || "")
         return '' if token.nil? || token == ''
-        options[:klass].send(options[:method].to_s, token)
+
+        shared_token = options[:klass].send(options[:method].to_s, token)
+        shared_token.to_s
+      end
+
+      # we only want to use this if the request is an api request
+      def html_request?(env)
+        (env['CONTENT_TYPE'] || "").to_s !~ /json/i
       end
 
     end

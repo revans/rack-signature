@@ -8,6 +8,10 @@ module Rack
 
       def generate_shared_token; ::SecureRandom.hex(8); end
 
+      def convert_hash_to_string(params)
+        params.map {|p| p.join('=')}.join('&')
+      end
+
       def stringify_request_message(env)
         ::Rack::Signature::BuildMessage.new(env).build!
       end
@@ -16,19 +20,13 @@ module Rack
         ::Rack::Signature::HmacSignature.new(key, message).sign
       end
 
-      def expected_signature(shared_key, env)
-        msg = stringify_request_message(env)
-        hmac_message(shared_key, msg)
-      end
-
       def setup_request(uri, opts, key)
         env  = ::Rack::MockRequest.env_for(uri, opts)
         msg  = stringify_request_message(env)
         sig  = hmac_message(key, msg)
-        req  = Rack::Request.new(env)
-        query_params = req.params
 
-        [uri, opts, query_params, env, sig, msg]
+
+        { signature: sig, message: msg, env: env }
       end
 
     end
