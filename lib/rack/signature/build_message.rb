@@ -22,7 +22,8 @@ module Rack
       private
 
       def sort_query_params
-        request.params.sort.map { |param| param.join('=') }
+        # request.params.sort.map { |param| param.join('=') }
+        get_params.sort.map { |param| param.join('=') }
       end
 
       def canonicalized_query_params
@@ -34,6 +35,21 @@ module Rack
           request.path_info.downcase +
           request.host.downcase +
           canonicalized_query_params
+      end
+
+
+      def get_params
+        return request.params unless request.params.empty?
+
+        if request.env['rack.input']
+          params = request.env['rack.input'].read
+          query_hash = params.split('&').inject({}) do |res, element|
+            k,v = element.split('=')
+            res.merge({k => v})
+          end
+        end
+
+        query_hash
       end
 
     end

@@ -5,8 +5,8 @@ require_relative 'signature/verify'
 
 module Rack
   module Signature
-    def self.new(app, key)
-      Verify.new(app, key)
+    def self.new(app, options)
+      Verify.new(app, options)
     end
   end
 end
