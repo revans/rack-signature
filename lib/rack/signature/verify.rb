@@ -9,16 +9,17 @@ require_relative 'hmac_signature'
 module Rack
   module Signature
     class Verify
+      attr_reader :options
 
       # Initializes the Rack Middleware
       #
       # ==== Attributes
       #
       # * +app+     - A Rack app
-      # * +key+     - The shared key used as a salt.
+      # * +options+ - A hash of options
       #
-      def initialize(app, key)
-        @app, @key = app, key
+      def initialize(app, options)
+        @app, @options = app, options
       end
 
       def call(env)
@@ -33,22 +34,41 @@ module Rack
 
       # if the signature is invalid we send back this Rack app
       def invalid_signature
-        [403, {'Content-Type' => 'text/html'}, 'Invalid Signature']
+        [401, {'CONTENT_TYPE' => 'application/json'}, 'Access Denied']
       end
 
       # compares the received Signature against what the Signature should be
       # (computed signature)
       def signature_is_valid?(env)
-        received_signature = env["HTTP_X_AUTH_SIG"]
-        expected_signature = compute_signature(env)
+        return true if html_request?(env)
 
-        expected_signature == received_signature
+        # grab and compute the X-AUTH-SIG
+        signature_sent    = env["X_AUTH_SIG"]
+        actual_signature  = compute_signature(env)
+
+        # are they the same?
+        signature_sent.to_s == actual_signature.to_s
       end
 
       # builds the request message and tells HmacSignature to sign the message
       def compute_signature(env)
         message = BuildMessage.new(env).build!
-        HmacSignature.new(@key, message).sign
+        HmacSignature.new(shared_key(env), message).sign
+      end
+
+      # FIXME: This is here for now for a quick implementation within another
+      # app. This will eventually need to be a rack app itself
+      def shared_key(env)
+        token = (env[options[:header_token]] || "")
+        return '' if token.nil? || token == ''
+
+        shared_token = options[:klass].send(options[:method].to_s, token)
+        shared_token.to_s
+      end
+
+      # we only want to use this if the request is an api request
+      def html_request?(env)
+        (env['CONTENT_TYPE'] || "").to_s !~ /json/i
       end
 
     end
