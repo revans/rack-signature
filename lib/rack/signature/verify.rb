@@ -68,7 +68,22 @@ module Rack
 
       # we only want to use this if the request is an api request
       def html_request?(env)
+        debug(env) if options[:debug]
         (env['CONTENT_TYPE'] || "").to_s !~ /json/i
+      end
+
+      def debug(env)
+        builder = BuildMessage.new(env)
+        log "SHARED_KEY from Rails:     #{shared_key(env).inspect}"
+        log "CONTENT_TYPE of request:   #{env['CONTENT_TYPE'].inspect}"
+        log "QUERY SENT:                #{builder.query.inspect}"
+        log "MESSAGE built by rails:    #{builder.build!.inspect}"
+        log "HMAC built by rails:       #{HmacSignature.new(shared_key(env), builder.build!).sign.inspect}"
+        log "HMAC received from client  #{env['X_AUTH_SIG'].inspect}"
+      end
+
+      def log(msg)
+        STDOUT.puts(msg)
       end
 
     end

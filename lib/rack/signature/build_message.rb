@@ -20,6 +20,9 @@ module Rack
         create_request_message
       end
 
+      def query
+        canonicalized_query_params
+      end
 
       private
 
