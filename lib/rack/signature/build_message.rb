@@ -48,7 +48,7 @@ module Rack
         form_vars = JSON.parse(form_vars) rescue form_vars
 
         request.env['rack.input'].rewind
-        form_vars = Rack::Utils.parse_query(form_vars)
+        form_vars = Rack::Utils.parse_query(form_vars) rescue form_vars
         form_vars
       end
 
