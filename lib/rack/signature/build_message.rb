@@ -1,4 +1,5 @@
 require 'rack/request'
+require 'json'
 
 module Rack
   module Signature
@@ -19,24 +20,11 @@ module Rack
         create_request_message
       end
 
-      def query_string
-        request.GET
-      end
-
-      def post_body
-        request.POST
-      end
-
-      def get_parameters
-        query_string || post_body
-      end
 
       private
 
       def sort_query_params
-        # request.params.sort.map { |param| param.join('=') }
-        # get_params.sort.map { |param| param.join('=') }
-        get_parameters.sort.map { |param| param.join('=') }
+        get_params.sort.map { |param| param.join('=') }
       end
 
       def canonicalized_query_params
@@ -50,27 +38,18 @@ module Rack
           canonicalized_query_params
       end
 
-
-      def nested_json_ordering
-        return request.params unless request.params.empty?
-
-      end
-
-
       def get_params
         return request.params unless request.params.empty?
+        return read_rack_input
+      end
 
-        if request.env['rack.input']
-          params = request.env['rack.input'].read
+      def read_rack_input
+        form_vars = request.env['rack.input'].read
+        form_vars = JSON.parse(form_vars) rescue form_vars
 
-
-          query_hash = params.split('&').inject({}) do |res, element|
-            k,v = element.split('=')
-            res.merge({k => v})
-          end
-        end
-
-        query_hash
+        request.env['rack.input'].rewind
+        form_vars = Rack::Utils.parse_query(form_vars)
+        form_vars
       end
 
     end
