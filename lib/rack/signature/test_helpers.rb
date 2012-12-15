@@ -26,7 +26,7 @@ module Rack
         sig  = hmac_message(key, msg)
 
 
-        { signature: sig, message: msg, env: env }
+        { signature: sig, message: msg, env: env, key: key }
       end
 
     end

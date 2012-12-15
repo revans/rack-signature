@@ -59,7 +59,7 @@ module Rack
       # FIXME: This is here for now for a quick implementation within another
       # app. This will eventually need to be a rack app itself
       def shared_key(env)
-        token = (env[options[:header_token]] || "")
+        token = env[options[:header_token]]
 
         shared_token = options[:klass].send(options[:method].to_s, token)
         shared_token.to_s
@@ -73,14 +73,15 @@ module Rack
 
       def debug(env)
         builder = BuildMessage.new(env)
-        log "WHAT MODEL WILL BE CALLED: #{options[:klass]}##{options[:method]} pulling api token from #{options[:header_token]} which is #{env[options[:header_token]]}"
-        log "CALL RAILS MODEL:          #{options[:klass].send(options[:method].to_s, (env[options[:header_token]]))}"
-        log "SHARED_KEY from Rails:     #{shared_key(env).inspect}"
-        log "CONTENT_TYPE of request:   #{env['CONTENT_TYPE'].inspect}"
-        log "QUERY SENT:                #{builder.query.inspect}"
-        log "MESSAGE built by rails:    #{builder.build!.inspect}"
-        log "HMAC built by rails:       #{HmacSignature.new(shared_key(env), builder.build!).sign.inspect}"
-        log "HMAC received from client  #{env['X_AUTH_SIG'].inspect}"
+        log "WHAT MODEL WILL BE CALLED:     #{options[:klass]}##{options[:method]} pulling api token from #{options[:header_token]} which is #{env[options[:header_token]]}"
+        log "CALL RAILS MODEL:              #{options[:klass].send(options[:method].to_s, (env[options[:header_token]])).inspect}"
+        log "SHARED_KEY from Rails:         #{shared_key(env).inspect}"
+        log "CONTENT_TYPE of request:       #{env['CONTENT_TYPE'].inspect}"
+        log "QUERY SENT:                    #{builder.query.inspect}"
+        log "MESSAGE built by rails:        #{builder.build!.inspect}"
+        log "HMAC built by rails:           #{HmacSignature.new(shared_key(env), builder.build!).sign.inspect}"
+        log "HMAC received from client      #{env['X_AUTH_SIG'].inspect}"
+        log "API KEY received from client   #{env['LOCKER_API_KEY'].inspect}"
       end
 
       def log(msg)
