@@ -11,7 +11,7 @@ describe "Verifying a signed requests" do
     end
   end
   let(:klass_options) do
-    {klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER_API_KEY', debug: false}
+    {klass: DemoClass, method: :get_shared_token, header_token: 'HTTP_LOCKER_API_KEY', debug: false}
   end
   let(:app)             { lambda { |env| [200, {}, ['Hello World']] } }
   let(:rack_signature)  { Rack::Signature.new(app, klass_options) }
@@ -27,7 +27,7 @@ describe "Verifying a signed requests" do
       setup_request(uri, {
         "CONTENT_TYPE"    => "application/json",
         "REQUEST_METHOD"  => "POST",
-        "LOCKER_API_KEY"  => "123",
+        "HTTP_LOCKER_API_KEY"  => "123",
         input: convert_hash_to_string(body)
       }, TOKEN)
     end
@@ -40,8 +40,8 @@ describe "Verifying a signed requests" do
         mock_request.post(uri,{
           "CONTENT_TYPE"    => "application/json",
           "REQUEST_METHOD"  => "POST",
-          "LOCKER_API_KEY"  => "123",
-          "X_AUTH_SIG"      => expected_sig,
+          "HTTP_LOCKER_API_KEY"  => "123",
+          "HTTP_X_AUTH_SIG"      => expected_sig,
           input: convert_hash_to_string(body)
         })
       end
@@ -64,8 +64,8 @@ describe "Verifying a signed requests" do
         mock_request.post(uri,{
           "CONTENT_TYPE"    => "application/json",
           "REQUEST_METHOD"  => "POST",
-          "LOCKER_API_KEY"  => "123",
-          "X_AUTH_SIG"      => expected_sig,
+          "HTTP_LOCKER_API_KEY"  => "123",
+          "HTTP_X_AUTH_SIG"      => expected_sig,
           input: convert_hash_to_string(body.merge(email: 'attacker@home.com'))
         })
       end
@@ -94,7 +94,7 @@ describe "Verifying a signed requests" do
       setup_request(uri, {
         "CONTENT_TYPE"    => "application/json",
         "REQUEST_METHOD"  => "GET",
-        "LOCKER_API_KEY"  => "123",
+        "HTTP_LOCKER_API_KEY"  => "123",
         "QUERY_STRING"    => convert_hash_to_string(body)
       }, TOKEN)
     end
@@ -107,9 +107,9 @@ describe "Verifying a signed requests" do
         mock_request.post(uri,{
           "CONTENT_TYPE"    => "application/json",
           "REQUEST_METHOD"  => "GET",
-          "LOCKER_API_KEY"  => "123",
+          "HTTP_LOCKER_API_KEY"  => "123",
           "QUERY_STRING"    => convert_hash_to_string(body),
-          "X_AUTH_SIG"      => expected_sig
+          "HTTP_X_AUTH_SIG"      => expected_sig
         })
       end
 
@@ -131,9 +131,9 @@ describe "Verifying a signed requests" do
         mock_request.post(uri,{
           "CONTENT_TYPE"    => "application/json",
           "REQUEST_METHOD"  => "GET",
-          "LOCKER_API_KEY"  => "123",
+          "HTTP_LOCKER_API_KEY"  => "123",
           "QUERY_STRING"    => convert_hash_to_string(body.merge(password: 654321)),
-          "X_AUTH_SIG"      => expected_sig
+          "HTTP_X_AUTH_SIG"      => expected_sig
         })
       end
 
@@ -175,7 +175,7 @@ describe "Verifying a signed requests" do
           "CONTENT_TYPE"    => "application/json",
           "REQUEST_METHOD"  => "POST",
           "QUERY_STRING"    => convert_hash_to_string(body),
-          "X_AUTH_SIG"      => expected_sig
+          "HTTP_X_AUTH_SIG"      => expected_sig
         })
       end
 

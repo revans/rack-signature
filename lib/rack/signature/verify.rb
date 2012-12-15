@@ -43,7 +43,7 @@ module Rack
         return true if html_request?(env)
 
         # grab and compute the X-AUTH-SIG
-        signature_sent    = env["X_AUTH_SIG"]
+        signature_sent    = env["HTTP_X_AUTH_SIG"]
         actual_signature  = compute_signature(env)
 
         # are they the same?
@@ -80,8 +80,9 @@ module Rack
         log "QUERY SENT:                    #{builder.query.inspect}"
         log "MESSAGE built by rails:        #{builder.build!.inspect}"
         log "HMAC built by rails:           #{HmacSignature.new(shared_key(env), builder.build!).sign.inspect}"
-        log "HMAC received from client      #{env['X_AUTH_SIG'].inspect}"
-        log "API KEY received from client   #{env['LOCKER_API_KEY'].inspect}"
+        log "HMAC received from client      #{env['HTTP_X_AUTH_SIG'].inspect}"
+        log "API KEY received from client   #{env['HTTP_LOCKER_API_KEY'].inspect}"
+        log "RACK ENV:                      #{env.inspect}"
       end
 
       def log(msg)
