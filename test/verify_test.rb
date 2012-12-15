@@ -10,7 +10,7 @@ describe "Verifying a signed requests" do
     end
   end
   let(:klass_options) do
-    {klass: DemoClass, method: :get_shared_token, token: 'LOCKER_API_KEY'}
+    {klass: DemoClass, method: :get_shared_token, header_token: 'LOCKER_API_KEY', debug: false}
   end
   let(:app)             { lambda { |env| [200, {}, ['Hello World']] } }
   let(:rack_signature)  { Rack::Signature.new(app, klass_options) }

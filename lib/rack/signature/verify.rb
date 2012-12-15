@@ -74,6 +74,7 @@ module Rack
 
       def debug(env)
         builder = BuildMessage.new(env)
+        log "WHAT MODEL WILL BE CALLED: #{options[:klass]}##{options[:method]} pulling api token from #{options[:header_token]} which is #{env[options[:header_token]]}"
         log "CALL RAILS MODEL:          #{options[:klass].send(options[:method].to_s, (env[options[:header_token]]))}"
         log "SHARED_KEY from Rails:     #{shared_key(env).inspect}"
         log "CONTENT_TYPE of request:   #{env['CONTENT_TYPE'].inspect}"
