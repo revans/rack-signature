@@ -24,5 +24,16 @@ module Rack::Signature
         BuildMessage.new(env).build!
     end
 
+    def test_query_string
+      env = Rack::MockRequest.env_for(
+        "http://example.com/api/login?password=elf&email=santa@claus.com&name=santa",
+        "Content-Type"    => "application/json",
+        "REQUEST_METHOD"  => "POST"
+      )
+
+      assert_equal "POST/api/loginexample.comemail=santa@claus.com&name=santa&password=elf",
+        BuildMessage.new(env).build!
+    end
+
   end
 end

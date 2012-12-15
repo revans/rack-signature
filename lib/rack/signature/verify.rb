@@ -59,7 +59,7 @@ module Rack
       # FIXME: This is here for now for a quick implementation within another
       # app. This will eventually need to be a rack app itself
       def shared_key(env)
-        token = (env[options[:header_token]] || "")
+        token = (env[options[:token]] || "")
         return '' if token.nil? || token == ''
 
         shared_token = options[:klass].send(options[:method].to_s, token)

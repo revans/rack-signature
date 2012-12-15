@@ -19,11 +19,24 @@ module Rack
         create_request_message
       end
 
+      def query_string
+        request.GET
+      end
+
+      def post_body
+        request.POST
+      end
+
+      def get_parameters
+        query_string || post_body
+      end
+
       private
 
       def sort_query_params
         # request.params.sort.map { |param| param.join('=') }
-        get_params.sort.map { |param| param.join('=') }
+        # get_params.sort.map { |param| param.join('=') }
+        get_parameters.sort.map { |param| param.join('=') }
       end
 
       def canonicalized_query_params
@@ -38,11 +51,19 @@ module Rack
       end
 
 
+      def nested_json_ordering
+        return request.params unless request.params.empty?
+
+      end
+
+
       def get_params
         return request.params unless request.params.empty?
 
         if request.env['rack.input']
           params = request.env['rack.input'].read
+
+
           query_hash = params.split('&').inject({}) do |res, element|
             k,v = element.split('=')
             res.merge({k => v})
