@@ -86,7 +86,7 @@ module Rack
       end
 
       def log(msg)
-        options[:logger].debug(msg)
+        options[:logger].info(msg)
       end
 
     end
