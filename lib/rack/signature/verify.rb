@@ -60,7 +60,6 @@ module Rack
       # app. This will eventually need to be a rack app itself
       def shared_key(env)
         token = (env[options[:header_token]] || "")
-        return '' if token.nil? || token == ''
 
         shared_token = options[:klass].send(options[:method].to_s, token)
         shared_token.to_s
