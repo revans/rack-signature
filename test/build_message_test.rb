@@ -1,8 +1,9 @@
-require_relative '../lib/rack/signature/build_message'
-require 'test_helper'
+require_relative 'test_helper'
+require 'json'
 
 module Rack::Signature
   class BuildMessageTest < MiniTest::Unit::TestCase
+    include TestHelper
 
     def test_build_with_a_valid_request
       env = Rack::MockRequest.env_for(
@@ -17,10 +18,11 @@ module Rack::Signature
         "http://example.com/api/login",
         "Content-Type"    => "application/json",
         "REQUEST_METHOD"  => "POST",
-        input: "password=123456&email=me@home.com&name=me&age=1"
+        input: {'passord' => '123456', 'email' => 'me@home.com', 'age' => 1}.to_json
       )
 
-      assert_equal "POST/api/loginexample.comage=1&email=me@home.com&name=me&password=123456",
+      message = 'POST/api/loginexample.com{"age":1,"email":"me@home.com","passord":"123456"}'
+      assert_equal message,
         BuildMessage.new(env).build!
     end
 
@@ -28,11 +30,24 @@ module Rack::Signature
       env = Rack::MockRequest.env_for(
         "http://example.com/api/login?password=elf&email=santa@claus.com&name=santa",
         "Content-Type"    => "application/json",
-        "REQUEST_METHOD"  => "POST"
+        "REQUEST_METHOD"  => "GET"
       )
 
-      assert_equal "POST/api/loginexample.comemail=santa@claus.com&name=santa&password=elf",
+      assert_equal "GET/api/loginexample.comemail=santa@claus.com&name=santa&password=elf",
         BuildMessage.new(env).build!
+    end
+
+    def test_nested_json_structure
+      env = Rack::MockRequest.env_for(
+        "http://example.com/api/create?name=me", {
+          method: 'POST',
+          content_type: 'application/json',
+          input: read_json('data')
+      })
+      ordered_json = read_json('ordered_json_data').chomp
+      message = "POST/api/createexample.com#{ordered_json}"
+
+      assert_equal message, BuildMessage.new(env).build!
     end
 
   end

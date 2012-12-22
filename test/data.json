@@ -1,0 +1,61 @@
+{ "fitting": {
+    "golfer": {
+      "firstName":          "Johnny",
+      "lastName":           "Bravo",
+      "email":              "mice@mice.com",
+      "gender":             "male",
+      "country":            "USA",
+      "zipcode":            "938383",
+      "agreedToPromotion":  "false"
+    },
+    "measurements": {
+      "golfer": {
+        "rightHanded":    "true",
+        "height":         "6.1",
+        "roundsPerMonth": "9",
+        "handicap":       "8",
+        "shotShape":      "b"
+      },
+      "clubPreferences": {
+        "shaftFlexDriver": "b"
+      }
+    },
+    "club_swing_data": [{
+      "driver": {
+        "slidespin":        "1",
+        "mode":             "b",
+        "launch_angle":     "3.2",
+        "deviation_angle":  "2.3",
+        "backspin":         "2",
+        "ball_speed":       "a"
+      }
+    }],
+    "recommendations": [
+    {
+      "sku":     "h",
+      "club_name":   "g",
+      "adjustments": {
+        "loft":       "f",
+        "shaft_flex": "shaft flex",
+        "face_angle": "angle",
+        "shot_shape": "circle",
+        "shaft_model": "club"
+      }
+    }],
+    "trajectory": {
+      "peakHeight":     "tree",
+      "deviation":      "one",
+      "carry":          "two",
+      "coordinates": [
+      {
+        "z":          "1.1",
+        "x":          "3.1",
+        "y":          "2.1",
+        "time":       "12345"
+      }
+      ]
+    },
+    "distributor":          "Big 5",
+    "location":             [32.694866,-116.630859]
+  }
+}

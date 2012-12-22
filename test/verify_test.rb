@@ -55,7 +55,8 @@ describe "Verifying a signed requests" do
       end
 
       it 'has the correct built message' do
-        assert_equal "POST/api/loginexample.comage=1&email=me@home.com&name=some dude&password=123456", expected_msg
+        received = 'POST/api/loginexample.com{"age":"1","email":"me@home.com","name":"some dude","password":"123456"}'
+        assert_equal received, expected_msg
       end
     end
 
