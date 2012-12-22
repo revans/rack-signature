@@ -22,25 +22,35 @@ module Rack
         read_request_and_build_message
       end
 
+      def query
+        sort_params
+      end
+
       private
 
       def read_request_and_build_message
-        form_vars = read_rack_input
-        if form_vars.nil? || form_vars == ''
-          for_query_string(request.params)
-        else
-          for_post_body(form_vars)
-        end
+        params = sort_params
+        build_request_message(params)
+      end
+
+      def sort_params
+        empty_form? ? for_query_string(request.params) : for_post_body(form_vars)
+      end
+
+      def form_vars
+        @form_vars ||= read_rack_input
+      end
+
+      def empty_form?
+        form_vars.nil? || form_vars == ''
       end
 
       def for_query_string(params)
-        sorted_params = params.sort.map { |p| p.join('=') }.join('&')
-        build_request_message(sorted_params)
+        @sorted_params ||= params.sort.map { |p| p.join('=') }.join('&')
       end
 
       def for_post_body(params)
-        sorted_json = BuildPostBody.new(params).sorted_json
-        build_request_message(sorted_json)
+        @sorted_json ||= BuildPostBody.new(params).sorted_json
       end
 
       def build_request_message(params)
