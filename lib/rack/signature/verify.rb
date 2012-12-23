@@ -77,7 +77,7 @@ module Rack
         log "CALL RAILS MODEL:              #{options[:klass].send(options[:method].to_s, (env[options[:header_token]])).inspect}"
         log "SHARED_KEY from Rails:         #{shared_key(env).inspect}"
         log "CONTENT_TYPE of request:       #{env['CONTENT_TYPE'].inspect}"
-        log "QUERY SENT:                    #{builder.query.inspect}"
+        log "QUERY SENT:                    #{builder.query_string.inspect}"
         log "MESSAGE built by rails:        #{builder.build!.inspect}"
         log "HMAC built by rails:           #{HmacSignature.new(shared_key(env), builder.build!).sign.inspect}"
         log "HMAC received from client      #{env['HTTP_X_AUTH_SIG'].inspect}"
