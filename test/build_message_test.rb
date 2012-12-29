@@ -15,13 +15,6 @@ module Rack::Signature
       assert_equal 'POST/api/registerlocalhost{"email":"demo@example.com","password":"123456"}', BuildMessage.new(env).build!
     end
 
-    def test_query
-      env = Rack::MockRequest.env_for(
-        "http://ec2-50-112-214-170.us-west-2.compute.amazonaws.com/api/fittings/search?q=mice@mice.com")
-
-      assert_equal 'GET/api/fittings/searchec2-50-112-214-170.us-west-2.compute.amazonaws.comq=mice@mice.com', BuildMessage.new(env).build!
-    end
-
     def test_build_with_a_valid_request
       env = Rack::MockRequest.env_for(
         "http://example.com/api/login?password=123456&email=me@home.com")
