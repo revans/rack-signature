@@ -1,0 +1,32 @@
+{"club_swing_data": [
+    {
+      "shot": 1,
+      "club": "driver",
+      "mode": "manual",
+      "ball_speed": "130.0",
+      "launch_angle": "10.0",
+      "deviation_angle": "0.0",
+      "backspin": "3000.0",
+      "slidespin": "0.0"
+    },
+    {
+      "shot": 2,
+      "club": "driver",
+      "mode": "manual",
+      "ball_speed": "130.0",
+      "launch_angle": "10.0",
+      "deviation_angle": "0.0",
+      "backspin": "3000.0",
+      "slidespin": "0.0"
+    },
+    {
+      "shot": 3,
+      "club": "driver",
+      "mode": "manual",
+      "ball_speed": "130.0",
+      "launch_angle": "10.0",
+      "deviation_angle": "0.0",
+      "backspin": "3000.0",
+      "slidespin": "0.0"
+    }
+]}

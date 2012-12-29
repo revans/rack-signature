@@ -39,6 +39,14 @@ module Rack::Signature
       assert_equal expected, SortQueryParams.new(actual).order
     end
 
+    it 'will handle array of hashes' do
+      json = read_json('array_of_hashes')
+      unsorted = JSON.parse(json)
+      sorted = {"club_swing_data"=>[{"backspin"=>"3000.0", "ball_speed"=>"130.0", "club"=>"driver", "deviation_angle"=>"0.0", "launch_angle"=>"10.0", "mode"=>"manual", "shot"=>1, "slidespin"=>"0.0"}, {"backspin"=>"3000.0", "ball_speed"=>"130.0", "club"=>"driver", "deviation_angle"=>"0.0", "launch_angle"=>"10.0", "mode"=>"manual", "shot"=>2, "slidespin"=>"0.0"}, {"backspin"=>"3000.0", "ball_speed"=>"130.0", "club"=>"driver", "deviation_angle"=>"0.0", "launch_angle"=>"10.0", "mode"=>"manual", "shot"=>3, "slidespin"=>"0.0"}]}
+
+      assert_equal sorted, SortQueryParams.new(unsorted).order
+    end
+
     it 'will sort array of hashes' do
       actual = {
         "recommendations" => [{
