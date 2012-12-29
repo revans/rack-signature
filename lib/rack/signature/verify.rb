@@ -27,11 +27,8 @@ module Rack
       end
 
       def _call(env)
-        status, headers, body = @app.call(env)
-        body.close if body.respond_to?(:close)
-        new_body = [] ; body.each { |line| new_body << line.to_s }
         if signature_is_valid?(env)
-          [ status, headers, new_body ]
+          @app.call(env)
         else
           [401, {'CONTENT_TYPE' => 'application/json'}, 'Access Denied']
         end
