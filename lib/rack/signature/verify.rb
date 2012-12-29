@@ -30,7 +30,9 @@ module Rack
         if signature_is_valid?(env)
           @app.call(env)
         else
-          [401, {'CONTENT_TYPE' => 'application/json'}, 'Access Denied']
+          status, headers, body = @app.call(env)
+          body.close if body.respond_to?(:close)
+          [401, {'CONTENT_TYPE' => 'application/json'}, ['Access Denied']]
         end
       end
 
