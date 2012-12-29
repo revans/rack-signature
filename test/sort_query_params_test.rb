@@ -10,149 +10,144 @@ module Rack::Signature
       json = read_json('data')
       hash = JSON.parse(json)
 
-      ordered_hash = SortQueryParams.new(hash).order
+      ordered_json = read_json('ordered_json_data')
+      ordered_json_hash = JSON.parse(ordered_json)
 
-      assert_equal 'club_swing_data', ordered_hash.first.last.first.first
-      assert_equal 'backspin', ordered_hash.first.last.first.last.first.first.last.first.first
+      assert_equal ordered_json_hash, SortQueryParams.new(hash).order
     end
 
     it 'will sort a large data set' do
-      SortQueryParams.new(actual_data).order.must_equal expected_data
+      assert_equal expected_data, SortQueryParams.new(actual_data).order
     end
 
     it 'will sort a simple hash by keys only' do
       expected = { age: 99, first_name: 'john', last_name: 'smith'}
-      SortQueryParams.new({last_name: 'smith', first_name: 'john', age: 99}).order.must_equal expected
+      assert_equal expected, SortQueryParams.new({last_name: 'smith', first_name: 'john', age: 99}).order
     end
 
     it 'will handle a simple array' do
       actual    = {"location" => [32, 34], "angle" => 3 }
       expected  = {"angle" => 3, "location" => [32, 34] }
 
-      SortQueryParams.new(actual).order.must_equal expected
+      assert_equal expected, SortQueryParams.new(actual).order
+    end
+
+    it 'can handle multiple keys of the same name when sorting' do
+      actual    = { data: [ {person: { name: 'john', age: 12 }}, {person: { name: 'bill', age: 77 }}]}
+      expected  = { data: [ {person: { age: 12, name: 'john' }}, {person: { age: 77, name: 'bill' }}]}
+
+      assert_equal expected, SortQueryParams.new(actual).order
+    end
+
+    it 'will handle array of hashes' do
+      json = read_json('array_of_hashes')
+      unsorted = JSON.parse(json)
+      sorted = {"club_swing_data"=>[{"backspin"=>"3000.0", "ball_speed"=>"130.0", "club"=>"driver", "deviation_angle"=>"0.0", "launch_angle"=>"10.0", "mode"=>"manual", "shot"=>1, "slidespin"=>"0.0"}, {"backspin"=>"3000.0", "ball_speed"=>"130.0", "club"=>"driver", "deviation_angle"=>"0.0", "launch_angle"=>"10.0", "mode"=>"manual", "shot"=>2, "slidespin"=>"0.0"}, {"backspin"=>"3000.0", "ball_speed"=>"130.0", "club"=>"driver", "deviation_angle"=>"0.0", "launch_angle"=>"10.0", "mode"=>"manual", "shot"=>3, "slidespin"=>"0.0"}]}
+
+      assert_equal sorted, SortQueryParams.new(unsorted).order
     end
 
     it 'will sort array of hashes' do
       actual = {
-        "trajectory" => {
-            "deviation"   => "one",
-            "coordinates" => [{
-              "z"     =>"1.1",
-              "x"     =>"3.1",
-              "y"     =>"2.1",
-              "time"  =>"12345"
-            }],
-            "carry" => "two"
-        },
         "recommendations" => [{
-            "sku"         =>"h",
-            "club_name"   =>"g",
-            "adjustments" => {
-              "shaft_model" => "club",
-              "shot_shape"  => "circle",
-              "shaft_flex"  => "shaft flex",
-              "loft"        => "f",
-              "face_angle"  => "angle",
-              },
-          }],
+          "sku"         =>"h",
+          "club_name"   =>"g",
+          "adjustments" => {
+            "shaft_model" => "club",
+            "shot_shape"  => "circle",
+            "shaft_flex"  => "shaft flex",
+            "loft"        => "f",
+            "face_angle"  => "angle",
+          },
+        }],
         "distributor" => "Big 5",
         "golfer" => {
-            "agreedToPromotion" =>"false",
-            "country"           =>"USA",
-            "email"             =>"mice@mice.com",
-            "firstName"         =>"Johnny",
-            "gender"            =>"male",
-            "lastName"          =>"Bravo",
-            "zipcode"           =>"938383"
-         },
+          "agreedToPromotion" =>"false",
+          "country"           =>"USA",
+          "email"             =>"mice@mice.com",
+          "firstName"         =>"Johnny",
+          "gender"            =>"male",
+          "lastName"          =>"Bravo",
+          "zipcode"           =>"938383"
+        },
       }
       expected = {
         "distributor" => "Big 5",
         "golfer" => {
-            "agreedToPromotion" =>"false",
-            "country"           =>"USA",
-            "email"             =>"mice@mice.com",
-            "firstName"         =>"Johnny",
-            "gender"            =>"male",
-            "lastName"          =>"Bravo",
-            "zipcode"           =>"938383"
-         },
-        "trajectory" => {
-            "carry" => "two",
-            "coordinates" => [{
-              "time"  =>"12345",
-              "x"     =>"3.1",
-              "y"     =>"2.1",
-              "z"     =>"1.1"
-            }],
-            "deviation"   => "one",
+          "agreedToPromotion" =>"false",
+          "country"           =>"USA",
+          "email"             =>"mice@mice.com",
+          "firstName"         =>"Johnny",
+          "gender"            =>"male",
+          "lastName"          =>"Bravo",
+          "zipcode"           =>"938383"
         },
-
         "recommendations" => [{
-            "adjustments" => {
-              "face_angle"  => "angle",
-              "loft"        => "f",
-              "shaft_flex"  => "shaft flex",
-              "shaft_model" => "club",
-              "shot_shape"  => "circle",
-              },
-            "club_name"   =>"g",
-            "sku"         =>"h"
-          }]
+          "adjustments" => {
+            "face_angle"  => "angle",
+            "loft"        => "f",
+            "shaft_flex"  => "shaft flex",
+            "shaft_model" => "club",
+            "shot_shape"  => "circle",
+          },
+          "club_name"   =>"g",
+          "sku"         =>"h"
+        }]
       }
-      SortQueryParams.new(actual).order.must_equal expected
+
+      assert_equal expected, SortQueryParams.new(actual).order
     end
 
     it 'will sort a rooted hash' do
       actual = {
-       "fitting" => {
-        "measurements"  => {
-          "golfer"          => {
-            "shotShape"       =>"b",
-            "height"          =>"6.1",
-            "rightHanded"     =>"true",
-            "roundsPerMonth"  =>"9",
-            "handicap"        =>"8"
+        "fitting" => {
+          "measurements"  => {
+            "golfer"          => {
+              "shotShape"       =>"b",
+              "height"          =>"6.1",
+              "rightHanded"     =>"true",
+              "roundsPerMonth"  =>"9",
+              "handicap"        =>"8"
+            },
+            "clubPreferences" => {"shaftFlexDriver"=>"b"}
           },
-          "clubPreferences" => {"shaftFlexDriver"=>"b"}
-        },
-        "club_swing_data" =>
+          "club_swing_data" =>
           [{
             "driver" => {
-            "slidespin"       =>"1",
-            "ball_speed"      =>"a",
-            "mode"            =>"b",
-            "launch_angle"    =>"3.2",
-            "deviation_angle" =>"2.3",
-            "backspin"        =>"2"
-          }}]
-      }}
+              "slidespin"       =>"1",
+              "ball_speed"      =>"a",
+              "mode"            =>"b",
+              "launch_angle"    =>"3.2",
+              "deviation_angle" =>"2.3",
+              "backspin"        =>"2"
+            }}]
+        }}
 
-      expected = {
-       "fitting" => {
-        "club_swing_data" =>
-          [{
-            "driver" => {
-            "backspin"        =>"2",
-            "ball_speed"      =>"a",
-            "deviation_angle" =>"2.3",
-            "launch_angle"    =>"3.2",
-            "mode"            =>"b",
-            "slidespin"       =>"1"
-          }}],
-        "measurements"  => {
-          "clubPreferences" => {"shaftFlexDriver"=>"b"},
-          "golfer"          => {
-            "handicap"        =>"8",
-            "height"          =>"6.1",
-            "rightHanded"     =>"true",
-            "roundsPerMonth"  =>"9",
-            "shotShape"       =>"b"
-          }
-        }
-      }}
+        expected = {
+          "fitting" => {
+            "club_swing_data" =>
+            [{
+              "driver" => {
+                "backspin"        =>"2",
+                "ball_speed"      =>"a",
+                "deviation_angle" =>"2.3",
+                "launch_angle"    =>"3.2",
+                "mode"            =>"b",
+                "slidespin"       =>"1"
+              }}],
+              "measurements"  => {
+                "clubPreferences" => {"shaftFlexDriver"=>"b"},
+                "golfer"          => {
+                  "handicap"        =>"8",
+                  "height"          =>"6.1",
+                  "rightHanded"     =>"true",
+                  "roundsPerMonth"  =>"9",
+                  "shotShape"       =>"b"
+                }
+              }
+          }}
 
-      SortQueryParams.new(actual).order.must_equal expected
+          assert_equal expected, SortQueryParams.new(actual).order
     end
 
 
@@ -161,16 +156,16 @@ module Rack::Signature
         "club_swing_data" => [
           {
             "driver" => {
-            "backspin"        =>"2",
-            "ball_speed"      =>"a",
-            "deviation_angle" =>"2.3",
-            "launch_angle"    =>"3.2",
-            "mode"            =>"b",
-            "slidespin"       =>"1"
-          }}
+              "backspin"        =>"2",
+              "ball_speed"      =>"a",
+              "deviation_angle" =>"2.3",
+              "launch_angle"    =>"3.2",
+              "mode"            =>"b",
+              "slidespin"       =>"1"
+            }}
         ],
-        "distributor" => "Big 5",
-        "golfer" => {
+          "distributor" => "Big 5",
+          "golfer" => {
             "agreedToPromotion" =>"false",
             "country"           =>"USA",
             "email"             =>"mice@mice.com",
@@ -178,55 +173,43 @@ module Rack::Signature
             "gender"            =>"male",
             "lastName"          =>"Bravo",
             "zipcode"           =>"938383"
-         },
-        "location"      => [32.694866, -116.630859],
-        "measurements"  => {
-          "clubPreferences" => {"shaftFlexDriver"=>"b"},
-          "golfer"          => {
-            "handicap"        =>"8",
-            "height"          =>"6.1",
-            "rightHanded"     =>"true",
-            "roundsPerMonth"  =>"9",
-            "shotShape"       =>"b"
-          }
-        },
-        "recommendations" => [{
+          },
+          "location"      => [32.694866, -116.630859],
+          "measurements"  => {
+            "clubPreferences" => {"shaftFlexDriver"=>"b"},
+            "golfer"          => {
+              "handicap"        =>"8",
+              "height"          =>"6.1",
+              "rightHanded"     =>"true",
+              "roundsPerMonth"  =>"9",
+              "shotShape"       =>"b"
+            }
+          },
+          "recommendations" => [{
             "adjustments" => {
               "face_angle"  => "angle",
               "loft"        => "f",
               "shaft_flex"  => "shaft flex",
               "shaft_model" => "club",
               "shot_shape"  => "circle",
-              },
+            },
             "club_name"   =>"g",
             "sku"         =>"h"
-          }],
-        "trajectory" => {
-            "carry" => "two",
-            "coordinates" => [{
-              "time"  =>"12345",
-              "x"     =>"3.1",
-              "y"     =>"2.1",
-              "z"     =>"1.1"
-            }],
-            "deviation"   => "one",
-            "peakHeight"  => "tree"
-          }
-        }
-      }
+          }]
+      }}
     end
 
     def actual_data
       {"fitting" => {
         "golfer" => {
-            "firstName"         =>"Johnny",
-            "email"             =>"mice@mice.com",
-            "agreedToPromotion" =>"false",
-            "zipcode"           =>"938383",
-            "lastName"          =>"Bravo",
-            "gender"            =>"male",
-            "country"           =>"USA",
-         },
+          "firstName"         =>"Johnny",
+          "email"             =>"mice@mice.com",
+          "agreedToPromotion" =>"false",
+          "zipcode"           =>"938383",
+          "lastName"          =>"Bravo",
+          "gender"            =>"male",
+          "country"           =>"USA",
+        },
         "measurements"  => {
           "clubPreferences" => {"shaftFlexDriver"=>"b"},
           "golfer"          => {
@@ -239,43 +222,32 @@ module Rack::Signature
         },
         "location"      => [32.694866, -116.630859],
         "recommendations" => [{
-            "club_name"   =>"g",
-            "adjustments" => {
-              "shot_shape"  => "circle",
-              "loft"        => "f",
-              "shaft_model" => "club",
-              "shaft_flex"  => "shaft flex",
-              "face_angle"  => "angle",
-              },
-            "sku"         =>"h"
-          }
-        ],
-        "distributor" => "Big 5",
-        "trajectory" => {
-            "peakHeight"  => "tree",
-            "coordinates" => [{
-              "y"     =>"2.1",
-              "z"     =>"1.1",
-              "time"  =>"12345",
-              "x"     =>"3.1",
-            }],
-            "deviation"   => "one",
-            "carry"       => "two",
-        },
-        "club_swing_data" => [
-          {
-            "driver" => {
-            "backspin"        =>"2",
-            "ball_speed"      =>"a",
-            "deviation_angle" =>"2.3",
-            "launch_angle"    =>"3.2",
-            "mode"            =>"b",
-            "slidespin"       =>"1"
-          }}
-        ],
+          "club_name"   =>"g",
+          "adjustments" => {
+            "shot_shape"  => "circle",
+            "loft"        => "f",
+            "shaft_model" => "club",
+            "shaft_flex"  => "shaft flex",
+            "face_angle"  => "angle",
+          },
+          "sku"         =>"h"
         }
-      }
+        ],
+          "distributor" => "Big 5",
+          "club_swing_data" => [
+            {
+              "driver" => {
+                "backspin"        =>"2",
+                "ball_speed"      =>"a",
+                "deviation_angle" =>"2.3",
+                "launch_angle"    =>"3.2",
+                "mode"            =>"b",
+                "slidespin"       =>"1"
+              }}
+          ]
+      }}
     end
 
   end
 end
+

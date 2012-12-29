@@ -23,19 +23,21 @@ module Rack
       end
 
       def call(env)
+        dup._call(env)
+      end
+
+      def _call(env)
+        status, headers, body = @app.call(env)
+        body.close if body.respond_to?(:close)
+        new_body = [] ; body.each { |line| new_body << line.to_s }
         if signature_is_valid?(env)
-          @app.call(env)
+          [ status, headers, new_body ]
         else
-          invalid_signature
+          [401, {'CONTENT_TYPE' => 'application/json'}, 'Access Denied']
         end
       end
 
       private
-
-      # if the signature is invalid we send back this Rack app
-      def invalid_signature
-        [401, {'CONTENT_TYPE' => 'application/json'}, 'Access Denied']
-      end
 
       # compares the received Signature against what the Signature should be
       # (computed signature)
