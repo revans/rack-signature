@@ -2,6 +2,7 @@ require_relative 'build_message'
 require_relative 'hmac_signature'
 require_relative 'sort_query_params'
 require 'rack'
+require 'json'
 
 module Rack
   module Signature
@@ -9,6 +10,15 @@ module Rack
 
       def convert_hash_to_string(params)
         params.map { |p| p.join('=')}.join('&')
+      end
+
+      def hash_to_sorted_json(obj)
+        sorted_hash = SortQueryParams.new(obj).order
+        JSON.generate(sorted_hash)
+      end
+
+      def sorted_json_to_hash(obj)
+        JSON.parse(obj)
       end
 
       def stringify_request_message(env)

@@ -12,7 +12,7 @@ module Rack
       end
 
       def sorted_json
-        sort_post_body.to_json
+        JSON.generate(sort_post_body)
       end
 
       def sort_post_body
