@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require_relative 'hmac_signature'
 
 # A Rack app to verify requests based on a computed signature passed within the
@@ -32,7 +33,7 @@ module Rack
         else
           status, headers, body = @app.call(env)
           body.close if body.respond_to?(:close)
-          [401, {'CONTENT_TYPE' => 'application/json'}, ['Access Denied']]
+          [401, {'CONTENT_TYPE' => 'application/json', :charset => 'utf-8'}, ['Access Denied']]
         end
       end
 

@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require_relative 'signature/version'
 require_relative 'signature/build_post_body'
 require_relative 'signature/build_message'

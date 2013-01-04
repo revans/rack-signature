@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'minitest/autorun'
 require 'rack/test'
 require 'rack/mock'
