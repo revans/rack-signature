@@ -1,5 +1,7 @@
+# encoding: UTF-8
 require_relative '../lib/rack/signature'
 require 'test_helper'
+require 'active_support/json'
 
 describe "Verifying a signed requests" do
   include Rack::Signature::TestHelpers
@@ -152,6 +154,86 @@ describe "Verifying a signed requests" do
     end
   end
 
+  describe "when using unicode json with ActiveSupport involvement" do
+    let(:uri) { "http://example.com/api/register" }
+    let(:body) do
+      { password: '123456', email: "namệ@hõmệ.com", name: "sõmệ dưdệ:", age: 1 }
+    end
+
+    def request_array
+      setup_request(uri, {
+        "CONTENT_TYPE"    => "application/json; charset=utf-8",
+        "REQUEST_METHOD"  => "POST",
+        input: ActiveSupport::JSON.encode(body)
+      }, "1")
+    end
+    let(:expected_env)    { request_array[:env] }
+    let(:expected_msg)    { request_array[:message] }
+    let(:expected_sig)    { request_array[:signature] }
+    let(:expected_key)    { request_array[:key] }
+
+    let(:mock_response) do
+      mock_request.post(uri,{
+        "CONTENT_TYPE"    => "application/json; charset=utf-8",
+        "REQUEST_METHOD"  => "POST",
+        "HTTP_X_AUTH_SIG" => expected_sig,
+        input: ActiveSupport::JSON.encode(body)
+      })
+    end
+
+    it 'will return a 200 status' do
+      assert_equal 200, mock_response.status
+    end
+
+    it 'will have a response body' do
+      assert_equal 'Hello World', mock_response.body
+    end
+
+    it 'has the correct built message' do
+      assert_equal "POST/api/registerexample.com{\"age\":1,\"email\":\"namệ@hõmệ.com\",\"name\":\"sõmệ dưdệ:\",\"password\":\"123456\"}", expected_msg
+    end
+  end
+
+  describe "when using unicode json without ActiveSupport involvement" do
+    let(:uri) { "http://example.com/api/register" }
+    let(:body) do
+      { password: '123456', email: "namệ@hõmệ.com", name: "sõmệ dưdệ:", age: 1 }
+    end
+
+    def request_array
+      setup_request(uri, {
+        "CONTENT_TYPE"    => "application/json; charset=utf-8",
+        "REQUEST_METHOD"  => "POST",
+        input: body.to_json
+      }, "1")
+    end
+    let(:expected_env)    { request_array[:env] }
+    let(:expected_msg)    { request_array[:message] }
+    let(:expected_sig)    { request_array[:signature] }
+    let(:expected_key)    { request_array[:key] }
+
+    let(:mock_response) do
+      mock_request.post(uri,{
+        "CONTENT_TYPE"    => "application/json; charset=utf-8",
+        "REQUEST_METHOD"  => "POST",
+        "HTTP_X_AUTH_SIG" => expected_sig,
+        input: body.to_json
+      })
+    end
+
+    it 'will return a 200 status' do
+      assert_equal 200, mock_response.status
+    end
+
+    it 'will have a response body' do
+      assert_equal 'Hello World', mock_response.body
+    end
+
+    it 'has the correct built message' do
+      assert_equal "POST/api/registerexample.com{\"age\":1,\"email\":\"namệ@hõmệ.com\",\"name\":\"sõmệ dưdệ:\",\"password\":\"123456\"}", expected_msg
+    end
+  end
+
   describe "when there is not token" do
     let(:uri) { "http://example.com/api/register" }
     let(:body) do
@@ -176,7 +258,7 @@ describe "Verifying a signed requests" do
           "CONTENT_TYPE"    => "application/json",
           "REQUEST_METHOD"  => "POST",
           "QUERY_STRING"    => convert_hash_to_string(body),
-          "HTTP_X_AUTH_SIG"      => expected_sig
+          "HTTP_X_AUTH_SIG" => expected_sig
         })
       end
 
