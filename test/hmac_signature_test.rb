@@ -2,7 +2,7 @@ require_relative '../lib/rack/signature/hmac_signature'
 require 'test_helper'
 
 module Rack::Signature
-  class HmacSignatureTest < MiniTest::Unit::TestCase
+  class HmacSignatureTest < Minitest::Test
 
     def test_valid_signature
       assert_equal expected_signature,

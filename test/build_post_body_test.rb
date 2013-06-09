@@ -3,7 +3,7 @@ require_relative '../lib/rack/signature/sort_query_params'
 require 'test_helper'
 
 module Rack::Signature
-  class BuildPostBodyTest < MiniTest::Unit::TestCase
+  class BuildPostBodyTest < Minitest::Test
     include TestHelper
 
     def hash

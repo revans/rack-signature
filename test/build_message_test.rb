@@ -2,7 +2,7 @@ require_relative 'test_helper'
 require 'json'
 
 module Rack::Signature
-  class BuildMessageTest < MiniTest::Unit::TestCase
+  class BuildMessageTest < Minitest::Test
     include TestHelper
 
     def test_get_query

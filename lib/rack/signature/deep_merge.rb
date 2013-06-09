@@ -1,13 +1,12 @@
 module Rack
   module Signature
     class DeepMerge
-      attr_reader :hash
       def initialize(hash)
         @hash = hash
       end
 
       def merge!
-        deep_merge(hash).chomp('&')
+        deep_merge(@hash).chomp('&')
       end
 
       # merge deep_merge & merge_hash
