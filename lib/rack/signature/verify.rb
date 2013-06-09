@@ -75,6 +75,7 @@ module Rack
 
       def debug(env)
         builder = BuildMessage.new(env)
+        # TODO: Create a Debug class, subclassing Logger
         log "WHAT MODEL WILL BE CALLED:     #{options[:klass]}##{options[:method]} pulling api token from #{options[:header_token]} which is #{env[options[:header_token]]}"
         log "CALL RAILS MODEL:              #{options[:klass].send(options[:method].to_s, (env[options[:header_token]])).inspect}"
         log "SHARED_KEY from Rails:         #{shared_key(env).inspect}"

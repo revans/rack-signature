@@ -62,7 +62,7 @@ module Rack
 
       def read_rack_input
         form_vars = request.env['rack.input'].read
-        form_vars = JSON.parse(form_vars) rescue form_vars
+        form_vars = ::JSON.parse(form_vars) rescue form_vars
         request.env['rack.input'].rewind
         form_vars
       end
