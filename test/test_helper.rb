@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'minitest/autorun'
+require 'minitest/pride'
 require 'rack/test'
 require 'rack/mock'
 require 'digest/sha2'
